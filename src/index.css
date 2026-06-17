@@ -1,0 +1,248 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&display=swap');
+
+:root {
+  font-family: 'ZCOOL KuaiLe', 'Ma Shan Zheng', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+body {
+  background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 40%, #98D8AA 70%, #8BC34A 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+@keyframes swaySlow {
+  0%, 100% { transform: rotate(-1deg); }
+  50% { transform: rotate(1deg); }
+}
+
+@keyframes bounceSoft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes bounceHard {
+  0%, 100% { transform: translateY(0) scale(1); }
+  25% { transform: translateY(-20px) scale(1.05); }
+  50% { transform: translateY(0) scale(1); }
+  75% { transform: translateY(-10px) scale(1.02); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(255, 255, 0, 0.4), 0 0 40px rgba(255, 215, 0, 0.2); }
+  50% { box-shadow: 0 0 40px rgba(255, 255, 0, 0.8), 0 0 80px rgba(255, 215, 0, 0.5); }
+}
+
+@keyframes successGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(76, 175, 80, 0.6), 0 0 40px rgba(76, 175, 80, 0.3); }
+  50% { box-shadow: 0 0 50px rgba(76, 175, 80, 1), 0 0 100px rgba(76, 175, 80, 0.5); }
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+  20%, 40%, 60%, 80% { transform: translateX(8px); }
+}
+
+@keyframes errorFlash {
+  0%, 100% { box-shadow: 0 0 0 rgba(244, 67, 54, 0); }
+  25%, 75% { box-shadow: 0 0 40px rgba(244, 67, 54, 0.8); }
+  50% { box-shadow: 0 0 80px rgba(244, 67, 54, 1); }
+}
+
+@keyframes flyToStats {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--fly-x), var(--fly-y)) scale(0.3); opacity: 0; }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes countBounce {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.4); }
+  60% { transform: scale(0.95); }
+  80% { transform: scale(1.05); }
+}
+
+@keyframes confettiFall {
+  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+@keyframes celebrationBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  10% { transform: translateY(-50px) scale(1.1); }
+  20% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-30px) scale(1.08); }
+  40% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-20px) scale(1.05); }
+  60% { transform: translateY(0) scale(1); }
+  70% { transform: translateY(-40px) scale(1.1); }
+  80% { transform: translateY(0) scale(1); }
+  90% { transform: translateY(-25px) scale(1.06); }
+}
+
+@keyframes rainbowText {
+  0% { color: #E53935; }
+  16% { color: #FF9800; }
+  33% { color: #FFEB3B; }
+  50% { color: #4CAF50; }
+  66% { color: #2196F3; }
+  83% { color: #9C27B0; }
+  100% { color: #E53935; }
+}
+
+@keyframes selectedRing {
+  0%, 100% { ring-offset-width: 4px; }
+  50% { ring-offset-width: 8px; }
+}
+
+@keyframes truckMove {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes cloudDrift {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(120vw); }
+}
+
+.animate-sway {
+  animation: sway 3s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.animate-sway-slow {
+  animation: swaySlow 4s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.animate-bounce-soft {
+  animation: bounceSoft 2s ease-in-out infinite;
+}
+
+.animate-bounce-hard {
+  animation: bounceHard 0.6s ease-in-out;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.animate-success-glow {
+  animation: successGlow 1.5s ease-in-out infinite;
+}
+
+.animate-error-shake {
+  animation: errorShake 0.5s ease-in-out;
+}
+
+.animate-error-flash {
+  animation: errorFlash 0.6s ease-in-out;
+}
+
+.animate-pop-in {
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-count-bounce {
+  animation: countBounce 0.5s ease-out;
+}
+
+.animate-celebration {
+  animation: celebrationBounce 2s ease-in-out infinite;
+}
+
+.animate-rainbow-text {
+  animation: rainbowText 3s linear infinite;
+}
+
+.animate-truck-selected {
+  animation: truckMove 0.3s ease-in-out infinite, pulseGlow 1.5s ease-in-out infinite;
+}
+
+.confetti-piece {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  top: 0;
+  animation: confettiFall linear forwards;
+  z-index: 100;
+}
+
+.cloud {
+  animation: cloudDrift linear infinite;
+}
+
+.apple-clickable:hover,
+.egg-clickable:hover {
+  filter: brightness(1.1);
+  cursor: pointer;
+  transform: scale(1.1);
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.apple-clickable:active,
+.egg-clickable:active {
+  transform: scale(0.9);
+}
+
+.btn-3d {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: all 0.15s ease;
+}
+
+.btn-3d::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  filter: brightness(0.7);
+  transform: translateY(6px);
+  z-index: -1;
+}
+
+.btn-3d:hover {
+  transform: translateY(-2px);
+}
+
+.btn-3d:hover::before {
+  transform: translateY(8px);
+}
+
+.btn-3d:active {
+  transform: translateY(4px);
+}
+
+.btn-3d:active::before {
+  transform: translateY(2px);
+}

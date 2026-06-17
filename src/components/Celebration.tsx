@@ -36,6 +36,10 @@ const celebrationMessages = [
 export default function Celebration() {
   const gameStatus = useGameStore((state) => state.gameStatus)
   const resetGame = useGameStore((state) => state.resetGame)
+  const continueToNextRound = useGameStore((state) => state.continueToNextRound)
+  const completedRounds = useGameStore((state) => state.completedRounds)
+  const difficulty = useGameStore((state) => state.difficulty)
+  const bonusStars = useGameStore((state) => state.bonusStars)
   
   const [confetti, setConfetti] = useState<Confetti[]>([])
   const [messageIndex, setMessageIndex] = useState(0)
@@ -112,7 +116,7 @@ export default function Celebration() {
 
         <div
           key={messageIndex}
-          className="mb-8 animate-celebration"
+          className="mb-6 animate-celebration"
         >
           <h1
             className="text-5xl md:text-8xl font-black tracking-wider animate-rainbow-text mb-2"
@@ -123,6 +127,35 @@ export default function Celebration() {
           >
             {currentMessage.text}
           </h1>
+        </div>
+
+        <div className="flex justify-center gap-3 md:gap-6 mb-6 flex-wrap">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl px-5 py-3 shadow-lg border-2 border-indigo-300">
+            <div className="text-xs md:text-sm text-indigo-500 font-bold">已完成</div>
+            <div className="text-2xl md:text-3xl font-black text-indigo-700">
+              {completedRounds} 轮
+            </div>
+          </div>
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl px-5 py-3 shadow-lg border-2 border-amber-300">
+            <div className="text-xs md:text-sm text-amber-600 font-bold">当前难度</div>
+            <div className="text-2xl md:text-3xl font-black text-amber-700">
+              {'⭐'.repeat(difficulty)}
+            </div>
+          </div>
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl px-5 py-3 shadow-lg border-2 border-yellow-300">
+            <div className="text-xs md:text-sm text-yellow-600 font-bold">奖励星星</div>
+            <div className="text-2xl md:text-3xl font-black text-yellow-700">
+              {bonusStars} ⭐
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-8 px-4">
+          <div className="inline-block bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl px-6 py-3 shadow-lg border-2 border-green-300 animate-bounce-soft">
+            <div className="text-base md:text-xl font-bold text-green-800" style={{ fontFamily: "'ZCOOL KuaiLe', sans-serif" }}>
+              🎯 里程碑达成！下一轮难度将继续提升，准备好了吗？
+            </div>
+          </div>
         </div>
 
         <div className="flex justify-center gap-3 md:gap-5 mb-10">
@@ -137,26 +170,47 @@ export default function Celebration() {
           ))}
         </div>
 
-        <div
-          className="inline-block pointer-events-auto"
-          onClick={(e) => {
-            e.stopPropagation()
-          }}
-        >
-          <button
-            onClick={resetGame}
-            className="px-10 py-5 md:px-16 md:py-6 bg-gradient-to-br from-pink-500 via-rose-500 to-red-500 text-white rounded-3xl font-black text-2xl md:text-3xl shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200 btn-3d animate-pulse-glow"
-            style={{ fontFamily: "'ZCOOL KuaiLe', sans-serif" }}
+        <div className="flex flex-col md:flex-row justify-center gap-4 md:gap-6 mb-10">
+          <div
+            className="inline-block pointer-events-auto"
+            onClick={(e) => {
+              e.stopPropagation()
+            }}
           >
-            <span className="flex items-center gap-3 md:gap-4">
-              <span className="text-3xl md:text-4xl">🔄</span>
-              <span>再 玩 一 次</span>
-              <span className="text-3xl md:text-4xl">🎮</span>
-            </span>
-          </button>
+            <button
+              onClick={continueToNextRound}
+              className="px-8 py-4 md:px-12 md:py-5 bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 text-white rounded-3xl font-black text-xl md:text-2xl shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200 btn-3d animate-pulse-glow"
+              style={{ fontFamily: "'ZCOOL KuaiLe', sans-serif" }}
+            >
+              <span className="flex items-center gap-2 md:gap-3">
+                <span className="text-2xl md:text-3xl">🚀</span>
+                <span>继续挑战</span>
+                <span className="text-2xl md:text-3xl">�</span>
+              </span>
+            </button>
+          </div>
+
+          <div
+            className="inline-block pointer-events-auto"
+            onClick={(e) => {
+              e.stopPropagation()
+            }}
+          >
+            <button
+              onClick={resetGame}
+              className="px-8 py-4 md:px-12 md:py-5 bg-gradient-to-br from-pink-500 via-rose-500 to-red-500 text-white rounded-3xl font-black text-xl md:text-2xl shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200 btn-3d"
+              style={{ fontFamily: "'ZCOOL KuaiLe', sans-serif" }}
+            >
+              <span className="flex items-center gap-2 md:gap-3">
+                <span className="text-2xl md:text-3xl">🔄</span>
+                <span>重新开始</span>
+                <span className="text-2xl md:text-3xl">🎮</span>
+              </span>
+            </button>
+          </div>
         </div>
 
-        <div className="mt-8 text-lg md:text-2xl font-bold text-amber-800 animate-pop-in" style={{ animationDelay: '0.5s' }}>
+        <div className="mt-4 text-lg md:text-2xl font-bold text-amber-800 animate-pop-in" style={{ animationDelay: '0.5s' }}>
           🌟 感谢你帮助农场完成了大丰收！🌟
         </div>
       </div>

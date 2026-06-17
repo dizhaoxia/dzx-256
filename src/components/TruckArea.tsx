@@ -38,7 +38,7 @@ export default function TruckArea() {
             <div className="flex gap-1">
               {trucks.map((t) => (
                 <div
-                  key={t.id}
+                  key={t.generationId}
                   className={`w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center text-xs md:text-sm font-bold transition-all duration-300 ${
                     t.matched
                       ? 'bg-green-500 text-white scale-110 shadow-md'
@@ -57,7 +57,7 @@ export default function TruckArea() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-5">
           {trucks.map((truck) => (
-            <TruckComponent key={truck.id} truck={truck} />
+            <TruckComponent key={truck.generationId} truck={truck} />
           ))}
         </div>
 

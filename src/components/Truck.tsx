@@ -21,6 +21,13 @@ export default function Truck({ truck }: TruckProps) {
   const prevMatchedRef = useRef(truck.matched)
 
   useEffect(() => {
+    setAnimateSuccess(false)
+    setAnimateError(false)
+    setClickPulse(false)
+    prevMatchedRef.current = truck.matched
+  }, [truck.generationId])
+
+  useEffect(() => {
     if (truck.matched && !prevMatchedRef.current) {
       setAnimateSuccess(true)
       soundManager.playSuccessSound()
@@ -28,7 +35,7 @@ export default function Truck({ truck }: TruckProps) {
       return () => clearTimeout(timer)
     }
     prevMatchedRef.current = truck.matched
-  }, [truck.matched])
+  }, [truck.matched, truck.generationId])
 
   useEffect(() => {
     if (showFeedback && feedbackType === 'error' && isSelected) {

@@ -11,6 +11,7 @@ export interface Truck {
   operation: MathOperation
   matched: boolean
   color: string
+  generationId: number
 }
 
 export type MathModalType = 'pickApple' | 'pickEgg' | 'deliver' | null
@@ -100,23 +101,25 @@ function generateTruckMath(
   }
 }
 
-function createInitialTrucks(): Truck[] {
+function createInitialTrucks(truckGeneration: number): Truck[] {
   const colors = ['#E53935', '#FFC107', '#4CAF50']
   return [1, 2, 3].map((id) => ({
     id,
     matched: false,
     color: colors[id - 1],
+    generationId: truckGeneration * 10 + id,
     ...generateTruckMath(id, 1),
   }))
 }
 
-function generateRegenerationTrucks(completedRounds: number): Truck[] {
+function generateRegenerationTrucks(completedRounds: number, truckGeneration: number): Truck[] {
   const difficulty = getDifficultyLevel(completedRounds)
   const colors = ['#E53935', '#FFC107', '#4CAF50']
   return [1, 2, 3].map((id) => ({
     id,
     matched: false,
     color: colors[id - 1],
+    generationId: truckGeneration * 10 + id,
     ...generateTruckMath(id, difficulty),
   }))
 }
@@ -181,6 +184,7 @@ interface GameState {
   showFeedback: boolean
   feedbackType: 'success' | 'error' | null
   _timeouts: ReturnType<typeof setTimeout>[]
+  truckGeneration: number
 
   completedRounds: number
   difficulty: 1 | 2 | 3
@@ -208,6 +212,7 @@ interface GameState {
   selectDeliveryType: (type: DeliveryType) => void
   deliverToTruck: () => void
   startCelebrating: () => void
+  continueToNextRound: () => void
   resetGame: () => void
   regenerateTrucks: () => void
   setFeedback: (message: string, type: 'success' | 'error') => void
@@ -221,7 +226,8 @@ export const useGameStore = create<GameState>((set, get) => ({
   eggCount: 0,
   maxApples: 8,
   maxEggs: 8,
-  trucks: createInitialTrucks(),
+  truckGeneration: 1,
+  trucks: createInitialTrucks(1),
   selectedTruckId: null,
   selectedDeliveryType: null,
   gameStatus: 'playing',
@@ -463,6 +469,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         t.id === truck.id ? { ...t, matched: true } : t
       )
       const allMatched = newTrucks.every((t) => t.matched)
+      const isMilestoneRound = allMatched && (completedRounds + 1) % 3 === 0
 
       const newState: Partial<GameState> = {
         trucks: newTrucks,
@@ -487,11 +494,29 @@ export const useGameStore = create<GameState>((set, get) => ({
       set(newState)
 
       if (allMatched) {
-        const t1 = setTimeout(() => get().startCelebrating(), 1500)
-        _addTimeout(t1)
+        if (isMilestoneRound) {
+          const t1 = setTimeout(() => get().startCelebrating(), 1500)
+          _addTimeout(t1)
+        } else {
+          const newDifficulty = getDifficultyLevel(completedRounds + 1)
+          const diffLabel = newDifficulty === 1 ? '入门' : newDifficulty === 2 ? '进阶 · 倒计时开启' : '挑战 · 15以内'
+          const t3 = setTimeout(() => {
+            const freshGen = get().truckGeneration + 1
+            set({
+              truckGeneration: freshGen,
+              trucks: generateRegenerationTrucks(completedRounds + 1, freshGen),
+              feedbackMessage: `🎊 第 ${completedRounds + 1} 轮完成！难度：${diffLabel}，继续加油！`,
+              showFeedback: true,
+              feedbackType: 'success',
+            })
+            const t4 = setTimeout(() => get().clearFeedback(), 3500)
+            _addTimeout(t4)
+          }, 1800)
+          _addTimeout(t3)
+        }
       }
 
-      const t2 = setTimeout(() => get().clearFeedback(), 2000)
+      const t2 = setTimeout(() => get().clearFeedback(), isMilestoneRound ? 2500 : 2000)
       _addTimeout(t2)
     } else {
       const diff = count - truck.target
@@ -509,9 +534,30 @@ export const useGameStore = create<GameState>((set, get) => ({
     set({ gameStatus: 'celebrating' })
   },
 
+  continueToNextRound: () => {
+    const { completedRounds, truckGeneration } = get()
+    const nextGen = truckGeneration + 1
+    set({
+      gameStatus: 'playing',
+      truckGeneration: nextGen,
+      trucks: generateRegenerationTrucks(completedRounds, nextGen),
+      appleCount: 0,
+      eggCount: 0,
+      selectedTruckId: null,
+      selectedDeliveryType: null,
+      showFeedback: false,
+      feedbackMessage: '',
+      feedbackType: null,
+    })
+  },
+
   regenerateTrucks: () => {
-    const { completedRounds } = get()
-    set({ trucks: generateRegenerationTrucks(completedRounds) })
+    const { completedRounds, truckGeneration } = get()
+    const nextGen = truckGeneration + 1
+    set({
+      truckGeneration: nextGen,
+      trucks: generateRegenerationTrucks(completedRounds, nextGen),
+    })
   },
 
   resetGame: () => {
@@ -523,7 +569,8 @@ export const useGameStore = create<GameState>((set, get) => ({
     set({
       appleCount: 0,
       eggCount: 0,
-      trucks: createInitialTrucks(),
+      truckGeneration: 1,
+      trucks: createInitialTrucks(1),
       selectedTruckId: null,
       selectedDeliveryType: null,
       gameStatus: 'playing',

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useGameStore } from '@/store/gameStore'
 import { soundManager } from '@/utils/soundManager'
 
@@ -22,43 +22,73 @@ const initialApples: ApplePosition[] = [
 ]
 
 export default function AppleTree() {
-  const pickApple = useGameStore((state) => state.pickApple)
-  const maxApples = useGameStore((state) => state.maxApples)
+  const requestPickApple = useGameStore((state) => state.requestPickApple)
+  const pendingPickData = useGameStore((state) => state.pendingPickData)
+  const mathChallenge = useGameStore((state) => state.mathChallenge)
   const appleCount = useGameStore((state) => state.appleCount)
+  const maxApples = useGameStore((state) => state.maxApples)
+
   const [apples, setApples] = useState<ApplePosition[]>(initialApples)
   const [flyingApples, setFlyingApples] = useState<{ id: number; x: number; y: number }[]>([])
   const [justPickedId, setJustPickedId] = useState<number | null>(null)
 
-  const resetApplesIfNeeded = useCallback(() => {
-    const unpickedCount = apples.filter((a) => !a.picked).length
-    if (unpickedCount === 0 && appleCount < maxApples) {
-      setTimeout(() => {
-        setApples(initialApples.map((a) => ({ ...a, picked: false })))
-      }, 500)
+  const prevPendingIdRef = useRef<number | null>(null)
+  const prevPendingRectRef = useRef<{ left: number; top: number; width: number; height: number } | null>(null)
+  const prevAppleCountRef = useRef(0)
+  const prevMathChallengeRef = useRef(mathChallenge)
+
+  useEffect(() => {
+    if (pendingPickData && pendingPickData.type === 'apple') {
+      prevPendingIdRef.current = pendingPickData.id
+      prevPendingRectRef.current = pendingPickData.rect
     }
-  }, [apples, appleCount, maxApples])
+  }, [pendingPickData])
+
+  useEffect(() => {
+    if (prevMathChallengeRef.current && !mathChallenge && prevPendingIdRef.current !== null) {
+      if (prevPendingRectRef.current && appleCount > prevAppleCountRef.current) {
+        const appleId = prevPendingIdRef.current
+        const rect = prevPendingRectRef.current
+        const flyId = Date.now()
+        const flyX = rect.left + rect.width / 2
+        const flyY = rect.top + rect.height / 2
+
+        setFlyingApples((prev) => [...prev, { id: flyId, x: flyX, y: flyY }])
+        setApples((prev) => prev.map((a) => (a.id === appleId ? { ...a, picked: true } : a)))
+        setJustPickedId(appleId)
+        soundManager.playPickSound()
+        setTimeout(() => setJustPickedId(null), 300)
+        setTimeout(() => {
+          setFlyingApples((prev) => prev.filter((f) => f.id !== flyId))
+        }, 600)
+
+        const unpickedCount = apples.filter((a) => !a.picked && a.id !== appleId).length
+        if (unpickedCount === 0 && appleCount < maxApples) {
+          setTimeout(() => {
+            setApples(initialApples.map((a) => ({ ...a, picked: false })))
+          }, 500)
+        }
+      }
+
+      prevPendingIdRef.current = null
+      prevPendingRectRef.current = null
+    }
+    prevAppleCountRef.current = appleCount
+    prevMathChallengeRef.current = mathChallenge
+  }, [mathChallenge, appleCount, apples, maxApples])
 
   const handleAppleClick = (apple: ApplePosition, e: React.MouseEvent) => {
     if (apple.picked) return
     if (appleCount >= maxApples) return
+    if (mathChallenge) return
 
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-    const flyId = Date.now()
-
-    setFlyingApples((prev) => [...prev, { id: flyId, x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }])
-
-    setApples((prev) => prev.map((a) => (a.id === apple.id ? { ...a, picked: true } : a)))
-    setJustPickedId(apple.id)
-    setTimeout(() => setJustPickedId(null), 300)
-
-    pickApple()
-    soundManager.playPickSound()
-
-    setTimeout(() => {
-      setFlyingApples((prev) => prev.filter((f) => f.id !== flyId))
-    }, 600)
-
-    resetApplesIfNeeded()
+    requestPickApple(apple.id, {
+      left: rect.left,
+      top: rect.top,
+      width: rect.width,
+      height: rect.height,
+    })
   }
 
   return (
@@ -69,7 +99,7 @@ export default function AppleTree() {
           borderRadius: '8px 8px 12px 12px',
           boxShadow: 'inset -8px 0 12px rgba(0,0,0,0.2)',
         }} />
-        
+
         <div className="absolute bottom-[110px] md:bottom-[130px] left-1/2 -translate-x-1/2 w-[220px] md:w-[270px] h-[200px] md:h-[240px] rounded-full" style={{
           background: 'radial-gradient(ellipse at 30% 30%, #81C784 0%, #4CAF50 50%, #388E3C 100%)',
           boxShadow: 'inset -20px -20px 40px rgba(0,0,0,0.15), 0 8px 20px rgba(0,0,0,0.2)',

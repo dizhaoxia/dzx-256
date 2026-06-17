@@ -3,6 +3,7 @@ import ChickenCoop from './ChickenCoop'
 import StatsPanel from './StatsPanel'
 import TruckArea from './TruckArea'
 import Celebration from './Celebration'
+import MathModal from './MathModal'
 
 export default function FarmScene() {
   return (
@@ -75,7 +76,7 @@ export default function FarmScene() {
             🌾 农场算术大丰收 🌾
           </h1>
           <p className="text-base md:text-xl text-green-800 font-bold bg-white/60 backdrop-blur-sm inline-block px-5 py-2 rounded-full shadow-md border-2 border-green-300">
-            采摘苹果🍎和鸡蛋🥚，运送到对应数字的货车上吧！
+            算算术 🧮 摘果🥚🍎 凑答案 🚚 运货车 · 快乐学数学！
           </p>
         </div>
       </header>
@@ -89,14 +90,14 @@ export default function FarmScene() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 items-end">
             <div className="h-[340px] md:h-[420px] bg-gradient-to-b from-green-200/40 to-green-300/40 backdrop-blur-sm rounded-3xl border-4 border-green-400/60 shadow-xl relative overflow-hidden">
               <div className="absolute top-3 left-3 bg-white/70 rounded-full px-3 py-1 text-xs md:text-sm font-bold text-green-700 shadow">
-                👆 点击苹果采摘
+                👆 点苹果 · 做加法
               </div>
               <AppleTree />
             </div>
 
             <div className="h-[340px] md:h-[420px] bg-gradient-to-b from-amber-200/40 to-orange-200/40 backdrop-blur-sm rounded-3xl border-4 border-amber-400/60 shadow-xl relative overflow-hidden">
               <div className="absolute top-3 right-3 bg-white/70 rounded-full px-3 py-1 text-xs md:text-sm font-bold text-amber-700 shadow">
-                👆 点击鸡蛋采摘
+                👆 点鸡蛋 · 做减法
               </div>
               <ChickenCoop />
             </div>
@@ -138,6 +139,7 @@ export default function FarmScene() {
       </section>
 
       <Celebration />
+      <MathModal />
 
       <footer className="relative z-10 pb-4 pt-2">
         <div className="text-center text-xs md:text-sm text-green-900/60 font-bold">

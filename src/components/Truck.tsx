@@ -12,6 +12,7 @@ export default function Truck({ truck }: TruckProps) {
   const selectedTruckId = useGameStore((state) => state.selectedTruckId)
   const feedbackType = useGameStore((state) => state.feedbackType)
   const showFeedback = useGameStore((state) => state.showFeedback)
+  const difficulty = useGameStore((state) => state.difficulty)
 
   const isSelected = selectedTruckId === truck.id
   const [animateSuccess, setAnimateSuccess] = useState(false)
@@ -77,20 +78,39 @@ export default function Truck({ truck }: TruckProps) {
       >
         <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
           <div
-            className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center text-3xl md:text-4xl font-black shadow-xl border-4 transition-all ${
+            className={`rounded-full flex items-center justify-center shadow-xl border-4 transition-all ${
               truck.matched
-                ? 'bg-gradient-to-br from-green-400 to-green-600 text-white border-green-300'
+                ? 'bg-gradient-to-br from-green-400 to-green-600 text-white border-green-300 w-20 h-20 md:w-24 md:h-24'
                 : isSelected
-                ? 'bg-gradient-to-br from-yellow-200 to-amber-400 text-white border-yellow-100 scale-110'
-                : 'bg-gradient-to-br from-yellow-300 to-amber-500 text-white border-yellow-200'
+                ? 'bg-gradient-to-br from-yellow-200 to-amber-400 text-white border-yellow-100 scale-110 w-20 h-20 md:w-28 md:h-20'
+                : 'bg-gradient-to-br from-yellow-300 to-amber-500 text-white border-yellow-200 w-20 h-20 md:w-28 md:h-20'
             }`}
             style={{ fontFamily: "'ZCOOL KuaiLe', sans-serif" }}
           >
-            {truck.target}
+            {truck.matched ? (
+              <div className="flex flex-col items-center">
+                <span className="text-2xl md:text-3xl">✓</span>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center px-2 py-1">
+                <div className="text-lg md:text-2xl font-black leading-none mb-0.5">
+                  {truck.expression}
+                </div>
+                <div className="text-xs md:text-sm font-bold opacity-80 leading-none">
+                  =?
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="mt-8 relative">
+        {difficulty >= 2 && !truck.matched && (
+          <div className="absolute -top-1 -right-1 bg-gradient-to-br from-purple-400 to-pink-500 text-white text-xs md:text-sm font-black rounded-full px-2 py-1 shadow-lg border-2 border-white animate-bounce-soft z-20">
+            {'⭐'.repeat(difficulty)}
+          </div>
+        )}
+
+        <div className="mt-10 md:mt-11 relative">
           <svg
             viewBox="0 0 240 140"
             className="w-full h-auto"
@@ -130,9 +150,14 @@ export default function Truck({ truck }: TruckProps) {
             )}
 
             {!truck.matched && (
-              <text x="80" y="72" fontSize="40" textAnchor="middle" fill="white" fillOpacity="0.5">
-                ?
-              </text>
+              <g>
+                <text x="80" y="65" fontSize="22" textAnchor="middle" fill="white" fillOpacity="0.8" fontWeight="bold">
+                  {truck.expression}=?
+                </text>
+                <text x="80" y="88" fontSize="14" textAnchor="middle" fill="white" fillOpacity="0.6">
+                  凑出答案再运送！
+                </text>
+              </g>
             )}
 
             <path
@@ -170,13 +195,16 @@ export default function Truck({ truck }: TruckProps) {
             {truck.matched ? (
               <span className="inline-flex items-center gap-1">
                 <span className="text-lg">✅</span> 已完成
+                <span className="ml-1 px-2 py-0.5 bg-green-200 rounded-full text-xs">
+                  {truck.expression}={truck.target}
+                </span>
               </span>
             ) : isSelected ? (
               <span className="inline-flex items-center gap-1">
                 <span className="text-lg">👆</span> 已选中
               </span>
             ) : (
-              <span>需运送 {truck.target} 个{itemEmoji}</span>
+              <span>需凑出「{truck.expression}=?」个{itemEmoji}</span>
             )}
           </div>
         </div>

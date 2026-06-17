@@ -1,7 +1,6 @@
 import { Truck } from 'lucide-react'
 import { useGameStore } from '@/store/gameStore'
 import TruckComponent from './Truck'
-import { soundManager } from '@/utils/soundManager'
 
 export default function TruckArea() {
   const trucks = useGameStore((state) => state.trucks)

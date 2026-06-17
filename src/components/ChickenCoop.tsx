@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useGameStore } from '@/store/gameStore'
 import { soundManager } from '@/utils/soundManager'
 
@@ -23,43 +23,73 @@ const initialEggs: EggPosition[] = [
 ]
 
 export default function ChickenCoop() {
-  const pickEgg = useGameStore((state) => state.pickEgg)
-  const maxEggs = useGameStore((state) => state.maxEggs)
+  const requestPickEgg = useGameStore((state) => state.requestPickEgg)
+  const pendingPickData = useGameStore((state) => state.pendingPickData)
+  const mathChallenge = useGameStore((state) => state.mathChallenge)
   const eggCount = useGameStore((state) => state.eggCount)
+  const maxEggs = useGameStore((state) => state.maxEggs)
+
   const [eggs, setEggs] = useState<EggPosition[]>(initialEggs)
   const [flyingEggs, setFlyingEggs] = useState<{ id: number; x: number; y: number }[]>([])
   const [justPickedId, setJustPickedId] = useState<number | null>(null)
 
-  const resetEggsIfNeeded = useCallback(() => {
-    const unpickedCount = eggs.filter((e) => !e.picked).length
-    if (unpickedCount === 0 && eggCount < maxEggs) {
-      setTimeout(() => {
-        setEggs(initialEggs.map((e) => ({ ...e, picked: false })))
-      }, 500)
+  const prevPendingIdRef = useRef<number | null>(null)
+  const prevPendingRectRef = useRef<{ left: number; top: number; width: number; height: number } | null>(null)
+  const prevEggCountRef = useRef(0)
+  const prevMathChallengeRef = useRef(mathChallenge)
+
+  useEffect(() => {
+    if (pendingPickData && pendingPickData.type === 'egg') {
+      prevPendingIdRef.current = pendingPickData.id
+      prevPendingRectRef.current = pendingPickData.rect
     }
-  }, [eggs, eggCount, maxEggs])
+  }, [pendingPickData])
+
+  useEffect(() => {
+    if (prevMathChallengeRef.current && !mathChallenge && prevPendingIdRef.current !== null) {
+      if (prevPendingRectRef.current && eggCount > prevEggCountRef.current) {
+        const eggId = prevPendingIdRef.current
+        const rect = prevPendingRectRef.current
+        const flyId = Date.now()
+        const flyX = rect.left + rect.width / 2
+        const flyY = rect.top + rect.height / 2
+
+        setFlyingEggs((prev) => [...prev, { id: flyId, x: flyX, y: flyY }])
+        setEggs((prev) => prev.map((eg) => (eg.id === eggId ? { ...eg, picked: true } : eg)))
+        setJustPickedId(eggId)
+        soundManager.playPickSound()
+        setTimeout(() => setJustPickedId(null), 300)
+        setTimeout(() => {
+          setFlyingEggs((prev) => prev.filter((f) => f.id !== flyId))
+        }, 600)
+
+        const unpickedCount = eggs.filter((e) => !e.picked && e.id !== eggId).length
+        if (unpickedCount === 0 && eggCount < maxEggs) {
+          setTimeout(() => {
+            setEggs(initialEggs.map((e) => ({ ...e, picked: false })))
+          }, 500)
+        }
+      }
+
+      prevPendingIdRef.current = null
+      prevPendingRectRef.current = null
+    }
+    prevEggCountRef.current = eggCount
+    prevMathChallengeRef.current = mathChallenge
+  }, [mathChallenge, eggCount, eggs, maxEggs])
 
   const handleEggClick = (egg: EggPosition, e: React.MouseEvent) => {
     if (egg.picked) return
     if (eggCount >= maxEggs) return
+    if (mathChallenge) return
 
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-    const flyId = Date.now()
-
-    setFlyingEggs((prev) => [...prev, { id: flyId, x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }])
-
-    setEggs((prev) => prev.map((eg) => (eg.id === egg.id ? { ...eg, picked: true } : eg)))
-    setJustPickedId(egg.id)
-    setTimeout(() => setJustPickedId(null), 300)
-
-    pickEgg()
-    soundManager.playPickSound()
-
-    setTimeout(() => {
-      setFlyingEggs((prev) => prev.filter((f) => f.id !== flyId))
-    }, 600)
-
-    resetEggsIfNeeded()
+    requestPickEgg(egg.id, {
+      left: rect.left,
+      top: rect.top,
+      width: rect.width,
+      height: rect.height,
+    })
   }
 
   return (
